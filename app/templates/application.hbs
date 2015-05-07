@@ -1,3 +1,19 @@
-<h2 id="title">Welcome to Ember.js</h2>
+<h2 id="title">Transactions</h2>
 
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Amount</th>
+    <th>Description</th>
+    <th>Balance</th>
+  </tr>
+{{#each tx in model}}
+  <tr>
+    <td>{{tx.formattedDate}}</td>
+    <td>{{tx.amount}}</td>
+    <td>{{tx.description}}</td>
+    <td>{{tx.balance}}</td>
+  </tr>
+{{/each}}
+</table>
 {{outlet}}

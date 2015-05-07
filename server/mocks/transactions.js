@@ -17,7 +17,7 @@ module.exports = function(app) {
   
   transactionsRouter.get('/', function(req, res) {
     res.send({
-      'transactions': allTransactions.slice(0, 10)
+      'transactions': allTransactions
     });
   });
 
