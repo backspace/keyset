@@ -36,5 +36,8 @@
     "express": "^4.12.3",
     "glob": "^4.5.3",
     "morgan": "^1.5.2"
+  },
+  "dependencies": {
+    "underscore": "^1.8.3"
   }
 }
