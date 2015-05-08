@@ -7,13 +7,16 @@
     <th>Description</th>
     <th>Balance</th>
   </tr>
-{{#each tx in model}}
-  <tr>
-    <td>{{tx.formattedDate}}</td>
-    <td>{{tx.amount}}</td>
-    <td>{{tx.description}}</td>
-    <td>{{tx.balance}}</td>
-  </tr>
-{{/each}}
+  {{#each tx in model}}
+    <tr>
+      <td>{{tx.formattedDate}}</td>
+      <td>{{tx.amount}}</td>
+      <td>{{tx.description}}</td>
+      <td>{{tx.balance}}</td>
+    </tr>
+  {{/each}}
 </table>
+
+<button {{action 'next'}}>Next Page</button>
+
 {{outlet}}

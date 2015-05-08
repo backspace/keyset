@@ -33,26 +33,10 @@ module.exports = function(app) {
     return new Cursor(_.extend({}, this, {location: location, direction: "desc"}))
   }
   
-  Cursor.prototype.makeURL = function(req) {
-    var query = _.extend({}, req.query, {cursor: JSON.stringify(this)})
-    var queryString = "?";
-    Object.keys(query).forEach(function(key) {
-      var vals = query[key];
-      if (!_.isArray(vals)) {
-        vals = [vals];
-      }
-      vals.forEach(function(val) {
-        queryString += encodeURIComponent(key) + "=" + encodeURIComponent(val);
-      })
-      
-    })
-    return req.baseUrl + req.path + queryString
-  }
-  
   Cursor.prototype.serialize = function(currentPage, req) {
     return {
-      next: this.next(currentPage).makeURL(req),
-      prev: this.prev(currentPage).makeURL(req)
+      next: JSON.stringify(this.next(currentPage)),
+      prev: JSON.stringify(this.prev(currentPage))
     }
   }
   
