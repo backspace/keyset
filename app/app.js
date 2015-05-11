@@ -15,12 +15,14 @@ App = Ember.Application.extend({
 
 var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
   init: function() {
-    this.set('content', Ember.A());
-    this.set('backingContent', this.get('delegate.content'));
-    this.set('store', this.get('delegate.store'));
-    this.set('type', this.get('delegate.type'));
-    this.set('backingStore', this.get('delegate.content'));
-    this.get('content').pushObjects(this.get('backingStore'));
+    this.set('content', Ember.A())
+        .set('backingContent', Ember.A())
+        .set('store', this.get('delegate.store'))
+        .set('type', this.get('delegate.type'))
+        .set('behavior', this.getWithDefault('behavior', 'append'));
+        
+    this.get('backingContent').pushObjects(this.get('delegate.content'));
+    this._updateContents();
   },
   
   nextPage: function() {
@@ -36,12 +38,17 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     //TODO: add original query params for query results
     //TODO: handle loading, error states
     store.findQuery(type, {cursor: meta.cursor.next}).then(function(results) {
-      // the only way I can trigger an update is to create an entirely new array here.
-      var newContent = Ember.A();
-      newContent.pushObjects(self.get('content'));
-      newContent.pushObjects(results.get('content'));
-      self.set('content', newContent)
+      self.get('backingContent').pushObjects(results.get('content'));
+      self._updateContents();
     });
+  },
+  
+  _updateContents: function() {
+    // the only way I can trigger an update is to create an entirely new array here.
+    // TODO: this is horribly inefficient
+    var newContent = Ember.A();
+    newContent.pushObjects(this.get('backingContent'));
+    this.set('content', newContent)
   }
 })
 
