@@ -2,6 +2,7 @@
 
 <table>
   <tr>
+    <th>ID</th>
     <th>Date</th>
     <th>Amount</th>
     <th>Description</th>
@@ -9,6 +10,7 @@
   </tr>
   {{#each tx in model}}
     <tr>
+      <td>{{tx.id}}</td>
       <td>{{tx.formattedDate}}</td>
       <td>{{tx.amount}}</td>
       <td>{{tx.description}}</td>
