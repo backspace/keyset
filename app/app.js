@@ -23,13 +23,16 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     //allow opts to be passed in for ctor convenience
     Ember.merge(this, this.opts)
     
+    this._super();
+    
     //make a defensive copy of the passed-in array
     this.get('content').pushObjects(this.get('delegate.content'));
     
-    this._super();
+    // fetch now in case we don't have enough data for a full page
+    this.fetchNextPage();
   },
   
-  arrangedContent: Ember.computed('content', 'location', 'pageSize', function() {
+  arrangedContent: Ember.computed('content.@each', 'location', 'pageSize', function() {
     var start = 0,
         location = this.get('location'),
         content = this.get('content'),
@@ -43,31 +46,37 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     return content.slice(start, location + pageSize);
   }),
   
-  nextPageLoaded: function() {
-    var available = this.get('content.length'),
-        location = this.get('location'),
-        pageSize = this.get('pageSize');
-    
-    return available > location + pageSize;
-  },
-  
-  loadNextPage: function() {
-    if (this.nextPageLoaded()) {
-      return Ember.RSVP.resolve(false);
-    }
+  _nextPageCursor: function() {
     var store = this.get('delegate.store'),
         type = this.get('delegate.type'),
         meta = this.get('delegate.meta') || store.metadataFor(type);
-    if (!meta || !meta.cursor) {
-      throw new Error("no cursor metadata found")
+    
+    return meta && meta.cursor && meta.cursor.next;
+  },
+  
+  nextPageFetched: function() {
+    var total = this.get('content.length'),
+        location = this.get('location'),
+        pageSize = this.get('pageSize');
+    
+    return total > (location + pageSize) * 2;
+  },
+  
+  fetchNextPage: function() {
+    var store = this.get('delegate.store'),
+        type = this.get('delegate.type'),
+        cursor = this._nextPageCursor();
+        
+    if (this.nextPageFetched() || !cursor) {
+      return Ember.RSVP.resolve();
     }
     //TODO: add original query params for query results
     //TODO: handle loading, error states
-    return store.findQuery(type, {cursor: meta.cursor.next}).then((results) => {
+    return store.findQuery(type, {cursor: cursor}).then((results) => {
       this.set('delegate', results);
-      //TODO: we may need additional fetches, ensure we have enough for a full page here
       this.get('content').pushObjects(results.get('content'));
-      return true;
+      //perform a recursive fetch in case this fetch didn't load enough results
+      return this.fetchNextPage();
     });
   },
   
@@ -82,9 +91,12 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
   },
   
   nextPage: function() {
-    //todo: boundary check
-    this.loadNextPage().then((didFetchData) => {
-      this.set('location', this.get('location') + this.get('pageSize'))
+    var location = this.get('location'),
+        pageSize = this.get('pageSize');
+        
+    //TODO: multiple calls should have no effect while fetching
+    this.fetchNextPage().then(() => {
+      this.set('location', location + pageSize)
     })
   }
 })

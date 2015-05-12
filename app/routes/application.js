@@ -3,7 +3,7 @@ import Ember from 'ember';
 export default Ember.Route.extend({
   model:function() {
     return this.store.find("transaction").paginate({
-      pageSize: 10,
+      pageSize: 100,
       behavior: 'replace'
     });
   },

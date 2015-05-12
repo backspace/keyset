@@ -1,5 +1,10 @@
 <h2 id="title">Transactions</h2>
 
+
+<button {{action 'prev'}} disabled={{if model.hasPrevPage false true}}>Prev Page</button>
+
+<button {{action 'next'}}>Next Page</button>
+
 <table>
   <tr>
     <th>ID</th>
@@ -18,9 +23,4 @@
     </tr>
   {{/each}}
 </table>
-
-<button {{action 'prev'}} disabled={{if model.hasPrevPage false true}}>Prev Page</button>
-
-<button {{action 'next'}}>Next Page</button>
-
 {{outlet}}
