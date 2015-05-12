@@ -39,6 +39,10 @@ module.exports = function(app) {
       cursor = new Cursor(JSON.parse(req.query.cursor))
     }
     
+    var transactions = allTransactions;
+    if (req.query.recent) {
+      transactions = transactions.slice(-500);
+    }
     var transactions = allTransactions.filter(function(tx) {
       if (!cursor.location) {
         return true;

@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   content: Ember.A(),
   location: 0,
@@ -6,7 +8,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   
   init: function() {
     //allow opts to be passed in for ctor convenience
-    Ember.merge(this, this.opts)
+    Ember.merge(this, this.opts);
     
     this._super();
     
@@ -71,8 +73,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   
   prevPage: function() {
     var location = this.get('location'),
-        pageSize = this.get('pageSize')
-    this.set('location', Math.max(location - pageSize, 0))
+        pageSize = this.get('pageSize');
+        
+    this.set('location', Math.max(location - pageSize, 0));
   },
   
   nextPage: function() {
@@ -81,7 +84,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         
     //TODO: multiple calls should have no effect while fetching
     this.fetchPages(1).then(() => {
-      this.set('location', location + pageSize)
-    })
+      this.set('location', location + pageSize);
+    });
   }
-})
+});

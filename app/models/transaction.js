@@ -8,6 +8,6 @@ export default DS.Model.extend({
   balance: DS.attr('number'),
   formattedDate: Ember.computed('date', function() {
     var date = this.get('date');
-    return "" + (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear()
+    return "" + (date.getMonth() + 1) + "-" + date.getDate() + "-" + date.getFullYear();
   })
 });

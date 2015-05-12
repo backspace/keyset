@@ -10,10 +10,10 @@ export default Ember.Route.extend({
   
   actions: {
     next: function() {
-      this.currentModel.nextPage()
+      this.currentModel.nextPage();
     },
     prev: function() {
-      this.currentModel.prevPage()
+      this.currentModel.prevPage();
     }
   }
 });
