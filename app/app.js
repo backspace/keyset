@@ -55,10 +55,9 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     if (this.nextPageLoaded()) {
       return Ember.RSVP.resolve(false);
     }
-    var store = this.get('delegate.store');
-    var type = this.get('delegate.type');
-    //TODO: grab meta off object if possible (findQuery)
-    var meta = this.get('delegate.meta') || store.metadataFor(type);
+    var store = this.get('delegate.store'),
+        type = this.get('delegate.type'),
+        meta = this.get('delegate.meta') || store.metadataFor(type);
     if (!meta || !meta.cursor) {
       throw new Error("no cursor metadata found")
     }
@@ -72,7 +71,14 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     });
   },
   
+  prevPage: function() {
+    var location = this.get('location'),
+        pageSize = this.get('pageSize')
+    this.set('location', Math.max(location - pageSize, 0))
+  },
+  
   nextPage: function() {
+    //todo: boundary check
     this.loadNextPage().then((didFetchData) => {
       this.set('location', this.get('location') + this.get('pageSize'))
     })
