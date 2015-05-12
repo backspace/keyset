@@ -19,7 +19,8 @@
   {{/each}}
 </table>
 
-<button {{action 'prev'}}>Prev Page</button>
+<button {{action 'prev'}} disabled={{if model.hasPrevPage false true}}>Prev Page</button>
+
 <button {{action 'next'}}>Next Page</button>
 
 {{outlet}}

@@ -71,6 +71,10 @@ var PaginatedArray = Ember.ArrayProxy.extend(Ember.MutableArray, {
     });
   },
   
+  hasPrevPage: Ember.computed('location', function() {
+    return this.get('location') > 0;
+  }),
+  
   prevPage: function() {
     var location = this.get('location'),
         pageSize = this.get('pageSize')
