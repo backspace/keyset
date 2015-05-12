@@ -19,24 +19,17 @@ module.exports = function(app) {
   
   function Cursor(props) {
     // If populated, the item at locationKey should _not_ be included in results for this page.
-    // if location is null, direction will always be asc
-    _.extend(this, {pageSize: 20, direction: "asc"}, props)
+    _.extend(this, {pageSize: 20}, props)
   }
   
   Cursor.prototype.next = function(currentPage) {
     var location = _.last(currentPage)[this.key];
-    return new Cursor(_.extend({}, this, {location: location, direction: "asc"}))
-  }
-  
-  Cursor.prototype.prev = function(currentPage) {
-    var location = _.first(currentPage)[this.key];
-    return new Cursor(_.extend({}, this, {location: location, direction: "desc"}))
+    return new Cursor(_.extend({}, this, {location: location}))
   }
   
   Cursor.prototype.serialize = function(currentPage, req) {
     return {
-      next: JSON.stringify(this.next(currentPage)),
-      prev: JSON.stringify(this.prev(currentPage))
+      next: JSON.stringify(this.next(currentPage))
     }
   }
   
@@ -50,14 +43,8 @@ module.exports = function(app) {
       if (!cursor.location) {
         return true;
       }
-      return cursor.direction == "asc"? tx.id > cursor.location : tx.id < cursor.location
-    });
-    
-    if (cursor.direction == 'asc') {
-      transactions = transactions.slice(0, cursor.pageSize)
-    } else {
-      transactions = transactions.slice(-cursor.pageSize)
-    }
+      return  tx.id > cursor.location
+    }).slice(0, cursor.pageSize);
     
     res.send({
       'transactions': transactions,
