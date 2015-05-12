@@ -2,7 +2,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   content: Ember.A(),
   location: 0,
   pageSize: 10,
-  behavior: 'append',
+  behavior: 'replace',
   
   init: function() {
     //allow opts to be passed in for ctor convenience
@@ -13,8 +13,8 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     //make a defensive copy of the passed-in array
     this.get('content').pushObjects(this.get('delegate.content'));
     
-    // fetch now in case we don't have enough data for a full page
-    this.fetchNextPage();
+    // fetch first page now in case we don't have enough data for a full page
+    this.fetchPages(0);
   },
   
   arrangedContent: Ember.computed('content.@each', 'location', 'pageSize', function() {
@@ -39,20 +39,20 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return meta && meta.cursor && meta.cursor.next;
   },
   
-  nextPageFetched: function() {
-    var total = this.get('content.length'),
+  pagesFetched: function(numPages) {
+    var totalFetched = this.get('content.length'),
         location = this.get('location'),
         pageSize = this.get('pageSize');
     
-    return total > (location + pageSize) * 2;
+    return totalFetched >= location + pageSize * (numPages + 1);
   },
   
-  fetchNextPage: function() {
+  fetchPages: function(numPages) {
     var store = this.get('delegate.store'),
         type = this.get('delegate.type'),
         cursor = this._nextPageCursor();
         
-    if (this.nextPageFetched() || !cursor) {
+    if (this.pagesFetched(numPages) || !cursor) {
       return Ember.RSVP.resolve();
     }
     //TODO: add original query params for query results
@@ -61,7 +61,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
       this.set('delegate', results);
       this.get('content').pushObjects(results.get('content'));
       //perform a recursive fetch in case this fetch didn't load enough results
-      return this.fetchNextPage();
+      return this.fetchPages(numPages);
     });
   },
   
@@ -80,7 +80,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         pageSize = this.get('pageSize');
         
     //TODO: multiple calls should have no effect while fetching
-    this.fetchNextPage().then(() => {
+    this.fetchPages(1).then(() => {
       this.set('location', location + pageSize)
     })
   }
