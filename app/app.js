@@ -19,7 +19,8 @@ App = Ember.Application.extend({
 DS.PromiseArray.reopen({
   paginate: function(opts) {
     return this.then(function(contents) {
-      return PaginatedArray.create({delegate: contents, opts: opts});
+      return PaginatedArray.create({delegate: contents, opts: opts})
+                .loadFirstPage();
     });
   }
   //TODO: add promisy implementations of other methods?
@@ -28,7 +29,8 @@ DS.PromiseArray.reopen({
 
 DS.RecordArray.reopen({
   paginate: function(opts) {
-    return PaginatedArray.create({delegate: this, opts: opts});
+    return PaginatedArray.create({delegate: this, opts: opts})
+              .loadFirstPage();
   }
 });
 

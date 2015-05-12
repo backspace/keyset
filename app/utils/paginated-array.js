@@ -1,7 +1,6 @@
 import Ember from 'ember';
 
 export default Ember.ArrayProxy.extend(Ember.MutableArray, {
-  content: Ember.A(),
   location: 0,
   pageSize: 10,
   behavior: 'replace',
@@ -9,14 +8,10 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   init: function() {
     //allow opts to be passed in for ctor convenience
     Ember.merge(this, this.opts);
+    //make a defensive copy of the passed-in array
+    this.set('content', this.get('delegate.content').slice(0));
     
     this._super();
-    
-    //make a defensive copy of the passed-in array
-    this.get('content').pushObjects(this.get('delegate.content'));
-    
-    // fetch first page now in case we don't have enough data for a full page
-    this.fetchPages(0);
   },
   
   arrangedContent: Ember.computed('content.@each', 'location', 'pageSize', function() {
@@ -41,7 +36,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return meta && meta.cursor && meta.cursor.next;
   },
   
-  pagesFetched: function(numPages) {
+  _pagesFetched: function(numPages) {
     var totalFetched = this.get('content.length'),
         location = this.get('location'),
         pageSize = this.get('pageSize');
@@ -49,13 +44,13 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return totalFetched >= location + pageSize * (numPages + 1);
   },
   
-  fetchPages: function(numPages) {
+  _fetchPages: function(numPages) {
     var store = this.get('delegate.store'),
         type = this.get('delegate.type'),
         cursor = this._nextPageCursor();
         
-    if (this.pagesFetched(numPages) || !cursor) {
-      return Ember.RSVP.resolve();
+    if (this._pagesFetched(numPages) || !cursor) {
+      return Ember.RSVP.resolve(this);
     }
     //TODO: add original query params for query results
     //TODO: handle loading, error states
@@ -63,8 +58,12 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
       this.set('delegate', results);
       this.get('content').pushObjects(results.get('content'));
       //perform a recursive fetch in case this fetch didn't load enough results
-      return this.fetchPages(numPages);
+      return this._fetchPages(numPages);
     });
+  },
+  
+  loadFirstPage: function() {
+    return this._fetchPages(0);
   },
   
   hasPrevPage: Ember.computed('location', function() {
@@ -76,6 +75,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         pageSize = this.get('pageSize');
         
     this.set('location', Math.max(location - pageSize, 0));
+    
+    //return promise to maintain parity with `nextPage()`
+    return Ember.RSVP.resolve(this);
   },
   
   nextPage: function() {
@@ -83,8 +85,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         pageSize = this.get('pageSize');
         
     //TODO: multiple calls should have no effect while fetching
-    this.fetchPages(1).then(() => {
+    return this._fetchPages(1).then(() => {
       this.set('location', location + pageSize);
+      return this;
     });
   }
 });
