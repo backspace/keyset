@@ -3,7 +3,7 @@ import {
   module,
   test
 } from 'qunit';
-import startApp from "../../helpers/start-app"
+import startApp from "../../helpers/start-app";
 import config from '../../../config/environment';
 
 var app, 
@@ -49,9 +49,9 @@ test('replaces current page with the next page', function(assert) {
         assert.equal(txs.get('lastObject.id'), "53586");
         assert.equal(txs.get('hasPrevPage'), false);
         assert.equal(txs.get('onFirstPage'), true);
-      })
-    })
-  })
+      });
+    });
+  });
 });
 
 test('append behavior', function(assert) {
@@ -113,10 +113,10 @@ test('paginates data queries', function(assert) {
 
   return transactions.then(function(txs) {
     assert.equal(txs.get('length'), 15);
-    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 1))
+    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 1));
     assert.equal(txs.get("firstObject.id"), "69273");
     assert.equal(txs.get("lastObject.id"), "69371");
-  })
+  });
 });
 
 test("doesn't go before beginning of list", function(assert) {
@@ -132,7 +132,7 @@ test("doesn't go before beginning of list", function(assert) {
   return prev.then(function(txs) {
     assert.equal(txs.get('length'), 10);
     assert.equal(txs.get('firstObject.id'), "53523");
-  })
+  });
 });
 
 test("doesn't go past end of list", function(assert) {
@@ -152,7 +152,7 @@ test("doesn't go past end of list", function(assert) {
     assert.deepEqual(txs.get('firstObject.date'), new Date(2013, 4, 29));
     assert.deepEqual(txs.get('lastObject.date'), new Date(2013, 4, 31));
     return txs.nextPage();
-  })
+  });
   
   return afterLastPage.then(function(txs) {
     assert.equal(txs.get('hasNextPage'), false);
@@ -160,7 +160,7 @@ test("doesn't go past end of list", function(assert) {
     assert.equal(txs.get('length'), 17);
     assert.equal(txs.get("firstObject.id"), "70673");
     assert.equal(txs.get("lastObject.id"), "70785");
-  })
+  });
 });
 
 test('updating indicator', function(assert) {
@@ -172,6 +172,6 @@ test('updating indicator', function(assert) {
     assert.equal(txs.get('isUpdating'), true);
     fetchNextPage.then(function() {
       assert.equal(txs.get('isUpdating'), false);
-    })
-  })
+    });
+  });
 });

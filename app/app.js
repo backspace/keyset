@@ -19,7 +19,7 @@ var arrayExtensions = {
       return PaginatedArray.create({delegate: this, opts: opts})
                 .loadFirstPage();
   }
-}
+};
 
 DS.PromiseArray.reopen(arrayExtensions);
 DS.RecordArray.reopen(arrayExtensions);
