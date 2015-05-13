@@ -14,25 +14,15 @@ App = Ember.Application.extend({
   Resolver: Resolver
 });
 
-
-
-DS.PromiseArray.reopen({
+var arrayExtensions = {
   paginate: function(opts) {
-    return this.then(function(contents) {
-      return PaginatedArray.create({delegate: contents, opts: opts})
+      return PaginatedArray.create({delegate: this, opts: opts})
                 .loadFirstPage();
-    });
   }
-  //TODO: add promisy implementations of other methods?
-});
+}
 
-
-DS.RecordArray.reopen({
-  paginate: function(opts) {
-    return PaginatedArray.create({delegate: this, opts: opts})
-              .loadFirstPage();
-  }
-});
+DS.PromiseArray.reopen(arrayExtensions);
+DS.RecordArray.reopen(arrayExtensions);
 
 loadInitializers(App, config.modulePrefix);
 

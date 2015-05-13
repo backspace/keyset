@@ -156,3 +156,16 @@ test("doesn't go past end of list", function(assert) {
     assert.equal(txs.get("lastObject.id"), "70785");
   })
 });
+
+test('updating indicator', function(assert) {
+  var transactions = store.find('transaction')
+                        .paginate({pageSize: 100});
+
+  return transactions.then(function(txs) {
+    var fetchNextPage = txs.nextPage();
+    assert.equal(txs.get('isUpdating'), true);
+    fetchNextPage.then(function() {
+      assert.equal(txs.get('isUpdating'), false);
+    })
+  })
+})
