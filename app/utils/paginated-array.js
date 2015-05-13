@@ -82,13 +82,16 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return Ember.RSVP.resolve(this);
   },
   
-  nextPage: function() {
+  nextPage: function(numPages) {
+    if (!numPages && numPages !== 0) {
+      numPages = 1;
+    }
     var location = this.get('location'),
         pageSize = this.get('pageSize');
         
     //TODO: multiple calls should have no effect while fetching
-    return this._fetchPages(1).then(() => {
-      this.set('location', location + pageSize);
+    return this._fetchPages(numPages).then(() => {
+      this.set('location', location + (numPages * pageSize));
       return this;
     });
   }

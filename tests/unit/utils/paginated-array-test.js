@@ -93,14 +93,10 @@ test('loads new data from server', function(assert) {
                         .paginate({pageSize: 10});
   
   transactions.then(function(txs) {
-    return txs.nextPage().then(function() {
-      return txs.nextPage().then(function() {
-        return txs.nextPage().then(function() {
-            assert.equal(txs.get('length'), 10);
-            assert.equal(txs.get("firstObject.id"), "53733");
-            assert.equal(txs.get("lastObject.id"), "53796");
-        });
-      });
+    return txs.nextPage(3).then(function() {
+      assert.equal(txs.get('length'), 10);
+      assert.equal(txs.get("firstObject.id"), "53733");
+      assert.equal(txs.get("lastObject.id"), "53796");
     });
   }).then(done);                    
 });
