@@ -23,13 +23,17 @@ module.exports = function(app) {
   }
   
   Cursor.prototype.next = function(currentPage) {
+    if (!currentPage.length) {
+      return null;
+    }
     var location = _.last(currentPage)[this.key];
     return new Cursor(_.extend({}, this, {location: location}))
   }
   
   Cursor.prototype.serialize = function(currentPage, req) {
+    var next = this.next(currentPage);
     return {
-      next: JSON.stringify(this.next(currentPage))
+      next: next && JSON.stringify(next)
     }
   }
   

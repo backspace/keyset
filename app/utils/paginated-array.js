@@ -91,7 +91,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         
     //TODO: multiple calls should have no effect while fetching
     return this._fetchPages(numPages).then(() => {
-      this.set('location', location + (numPages * pageSize));
+      var contentLength = this.get('content.length');
+      var lastPage = contentLength - contentLength % pageSize
+      this.set('location', Math.min(lastPage, location + (numPages * pageSize)));
       return this;
     });
   }

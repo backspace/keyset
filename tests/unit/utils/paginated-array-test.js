@@ -24,7 +24,7 @@ TODO: test:
 test('truncates results to the given page size', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction')
+  var transactions = store.find('transaction')
                         .paginate({pageSize: 10});
   
   transactions.then(function(txs) {
@@ -36,7 +36,7 @@ test('truncates results to the given page size', function(assert) {
 test('replaces current page with the next page', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction')
+  var transactions = store.find('transaction')
                         .paginate({pageSize: 10});
   
   transactions.then(function(txs) {
@@ -64,7 +64,7 @@ test('replaces current page with the next page', function(assert) {
 test('append behavior', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction')
+  var transactions = store.find('transaction')
                         .paginate({pageSize: 10, behavior: 'append'});
   
   transactions.then(function(txs) {
@@ -89,7 +89,7 @@ test('append behavior', function(assert) {
 test('loads new data from server', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction')
+  var transactions = store.find('transaction')
                         .paginate({pageSize: 10});
   
   transactions.then(function(txs) {
@@ -104,7 +104,7 @@ test('loads new data from server', function(assert) {
 test('loads full data of pages larger than remote page size', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction')
+  var transactions = store.find('transaction')
                         .paginate({pageSize: 67});
   
   transactions.then(function(txs) {
@@ -123,13 +123,34 @@ test('loads full data of pages larger than remote page size', function(assert) {
 test('paginates data queries', function(assert) {
   var done = assert.async();
   
-  var transactions = store.findAll('transaction', {year: 2013, month: 5})
+  var transactions = store.find('transaction', {year: 2013, month: 5})
                         .paginate({pageSize: 15});
                         
   
   transactions.then(function(txs) {
     assert.equal(txs.get('length'), 15);
-    assert.equal(txs.get("firstObject.id"), "53523");
-    assert.equal(txs.get("lastObject.id"), "53621");
+    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 1))
+    assert.equal(txs.get("firstObject.id"), "69273");
+    assert.equal(txs.get("lastObject.id"), "69371");
   }).then(done);
-})
+});
+
+test("doesn't go past end of list", function(assert) {
+  var done = assert.async();
+  
+  var transactions = store.find('transaction', {year: 2013, month: 5})
+                        .paginate({pageSize: 20});
+                        
+  
+  var lastPage = transactions.then(function(txs) {
+    return txs.nextPage(10);
+  });
+  
+  lastPage.then(function(txs) {
+    assert.equal(txs.get('length'), 17);
+    assert.equal(txs.get("firstObject.id"), "70673");
+    assert.deepEqual(txs.get('firstObject.date'), new Date(2013, 4, 29))
+    assert.equal(txs.get("lastObject.id"), "70785");
+    assert.deepEqual(txs.get('lastObject.date'), new Date(2013, 4, 31))
+  }).then(done);
+});
