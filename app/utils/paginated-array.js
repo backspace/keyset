@@ -82,6 +82,11 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return Ember.RSVP.resolve(this);
   },
   
+  hasNextPage: Ember.computed('location', 'delegate', function() {
+    var cursor = this._nextPageCursor();
+    return !!cursor || this.get('location') + this.get('pageSize') < this.get('content.length');
+  }),
+  
   nextPage: function(numPages) {
     if (!numPages && numPages !== 0) {
       numPages = 1;
