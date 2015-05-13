@@ -116,6 +116,22 @@ test('paginates data queries', function(assert) {
   })
 });
 
+test("doesn't go before beginning of list", function(assert) {
+  var transactions = store.find('transaction')
+                        .paginate({pageSize: 10});
+  
+  var prev = transactions.then(function(txs) {
+    assert.equal(txs.get('length'), 10);
+    assert.equal(txs.get('firstObject.id'), "53523");
+    return txs.prevPage();
+  });
+
+  return prev.then(function(txs) {
+    assert.equal(txs.get('length'), 10);
+    assert.equal(txs.get('firstObject.id'), "53523");
+  })
+});
+
 test("doesn't go past end of list", function(assert) {
   var transactions = store.find('transaction', {year: 2013, month: 5})
                         .paginate({pageSize: 20});
