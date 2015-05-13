@@ -215,7 +215,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   
   /**
     Navigate to the next page of data
-    
+    @param numPages the number of pages from current page to fetch data for.
+           if `numPages` is 0, we will fetch data for the current page only.
+           Default: 1
     @return a promise to `this` array, with the next page populated.
   */
   nextPage: function(numPages) {
