@@ -52,9 +52,11 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     if (this._pagesFetched(numPages) || !cursor) {
       return Ember.RSVP.resolve(this);
     }
-    //TODO: add original query params for query results
+
     //TODO: handle loading, error states
-    return store.findQuery(type, {cursor: cursor}).then((results) => {
+    var query = this.get('delegate.query') || {};
+    query.cursor = cursor;
+    return store.findQuery(type, query).then((results) => {
       this.set('delegate', results);
       this.get('content').pushObjects(results.get('content'));
       //perform a recursive fetch in case this fetch didn't load enough results

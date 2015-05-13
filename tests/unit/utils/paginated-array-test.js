@@ -123,3 +123,17 @@ test('loads full data of pages larger than remote page size', function(assert) {
     });
   }).then(done);                    
 });
+
+test('paginates data queries', function(assert) {
+  var done = assert.async();
+  
+  var transactions = store.findAll('transaction', {year: 2013, month: 5})
+                        .paginate({pageSize: 15});
+                        
+  
+  transactions.then(function(txs) {
+    assert.equal(txs.get('length'), 15);
+    assert.equal(txs.get("firstObject.id"), "53523");
+    assert.equal(txs.get("lastObject.id"), "53621");
+  }).then(done);
+})

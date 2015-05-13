@@ -40,10 +40,13 @@ module.exports = function(app) {
     }
     
     var transactions = allTransactions;
-    if (req.query.recent) {
-      transactions = transactions.slice(-500);
+    if (req.query.year) {
+      transactions = transactions.filter(function(tx) { return tx.date.indexOf("/" +req.query.year) > 0})
     }
-    var transactions = allTransactions.filter(function(tx) {
+    if (req.query.month) {
+      transactions = transactions.filter(function(tx) { return tx.date.indexOf(req.query.month + "/") == 0})
+    }
+    var transactions = transactions.filter(function(tx) {
       if (!cursor.location) {
         return true;
       }
