@@ -34,18 +34,21 @@ test('replaces current page with the next page', function(assert) {
     assert.equal(txs.get('firstObject.id'), "53523");
     assert.equal(txs.get('lastObject.id'), "53586");
     assert.equal(txs.get('hasPrevPage'), false);
+    assert.equal(txs.get('onFirstPage'), true);
     
     return txs.nextPage().then(function() {
       assert.equal(txs.get('length'), 10);
       assert.equal(txs.get("firstObject.id"), "53593");
       assert.equal(txs.get("lastObject.id"), "53656");
       assert.equal(txs.get('hasPrevPage'), true);
+      assert.equal(txs.get('onFirstPage'), false);
       
       return txs.prevPage().then(function() {
         assert.equal(txs.get('length'), 10);
         assert.equal(txs.get('firstObject.id'), "53523");
         assert.equal(txs.get('lastObject.id'), "53586");
         assert.equal(txs.get('hasPrevPage'), false);
+        assert.equal(txs.get('onFirstPage'), true);
       })
     })
   })
@@ -138,11 +141,13 @@ test("doesn't go past end of list", function(assert) {
 
   var lastPage = transactions.then(function(txs) {
     assert.equal(txs.get('hasNextPage'), true);
+    assert.equal(txs.get('onLastPage'), false);
     return txs.nextPage(10);
   });
 
   var afterLastPage = lastPage.then(function(txs) {
     assert.equal(txs.get('hasNextPage'), false);
+    assert.equal(txs.get('onLastPage'), true);
     assert.equal(txs.get('length'), 17);
     assert.deepEqual(txs.get('firstObject.date'), new Date(2013, 4, 29));
     assert.deepEqual(txs.get('lastObject.date'), new Date(2013, 4, 31));
@@ -151,6 +156,7 @@ test("doesn't go past end of list", function(assert) {
   
   return afterLastPage.then(function(txs) {
     assert.equal(txs.get('hasNextPage'), false);
+    assert.equal(txs.get('onLastPage'), true);
     assert.equal(txs.get('length'), 17);
     assert.equal(txs.get("firstObject.id"), "70673");
     assert.equal(txs.get("lastObject.id"), "70785");
@@ -168,4 +174,4 @@ test('updating indicator', function(assert) {
       assert.equal(txs.get('isUpdating'), false);
     })
   })
-})
+});

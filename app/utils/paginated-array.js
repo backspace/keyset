@@ -74,6 +74,10 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     return this.get('location') > 0;
   }),
   
+  onFirstPage: Ember.computed('hasPrevPage', function() {
+    return !this.get('hasPrevPage');
+  }),
+  
   prevPage: function() {
     var location = this.get('location'),
         pageSize = this.get('pageSize');
@@ -87,6 +91,10 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   hasNextPage: Ember.computed('location', 'delegate', function() {
     var cursor = this._nextPageCursor();
     return !!cursor || this.get('location') + this.get('pageSize') < this.get('content.length');
+  }),
+  
+  onLastPage: Ember.computed('hasNextPage', function() {
+    return !this.get('hasNextPage');
   }),
   
   nextPage: function(numPages) {
