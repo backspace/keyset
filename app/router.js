@@ -7,5 +7,4 @@ var Router = Ember.Router.extend({
 
 export default Router.map(function() {
   this.route('transaction-list');
-  this.route('test');
 });
