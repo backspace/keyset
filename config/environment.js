@@ -3,6 +3,7 @@
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'ember-keyset-pagination',
+    podModulePrefix: 'ember-keyset-pagination/pods',
     environment: environment,
     baseURL: '/',
     locationType: 'auto',
