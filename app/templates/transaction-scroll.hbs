@@ -1,0 +1,29 @@
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Amount</th>
+      <th>Description</th>
+      <th>Balance</th>
+    </tr>
+  </thead>
+  {{#infinite-scroll tagName='tbody' contents=model}}
+    {{#each tx in model}}
+      <tr>
+        <td>{{tx.id}}</td>
+        <td>{{tx.formattedDate}}</td>
+        <td>{{tx.amount}}</td>
+        <td>{{tx.description}}</td>
+        <td>{{tx.balance}}</td>
+      </tr>
+    {{/each}}
+  {{/infinite-scroll}}
+  <tfoot>
+    <tr>
+      <td colspan="5">
+        <img style="width:20px;visibility:{{if model.isUpdating 'visible' 'hidden'}}" src="/loading.gif"/>
+      </td>
+    </tr>
+  </tfoot>
+</table>
