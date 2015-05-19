@@ -13,16 +13,6 @@ App = Ember.Application.extend({
   Resolver: Resolver
 });
 
-var arrayExtensions = {
-  paginate: function(opts) {
-      return PaginatedArray.create({delegate: this, opts: opts})
-                .loadFirstPage();
-  }
-};
-
-DS.PromiseArray.reopen(arrayExtensions);
-DS.RecordArray.reopen(arrayExtensions);
-
 loadInitializers(App, config.modulePrefix);
 
 export default App;
