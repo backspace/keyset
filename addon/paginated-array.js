@@ -1,4 +1,7 @@
 import Ember from 'ember';
+import DS from "ember-data";
+
+/* global URI */
 
 export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   /**
@@ -122,11 +125,32 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
       return Ember.RSVP.resolve(this);
     }
 
-    var query = this.get('delegate.query') || {};
-    query.cursor = cursor;
-    return store.findQuery(type, query).then((results) => {
+    var fetchPromise, 
+        linkBackup;
+    if(this.get('delegate') instanceof DS.ManyArray) {
+      //update the link of has-many 
+      var relationship = this.get('delegate.relationship');
+      if (relationship.link) {
+        linkBackup = relationship.link;
+        var linkUri = URI(relationship.link);
+        linkUri.setQuery("cursor", cursor);
+        relationship.updateLink(linkUri.toString());
+      }
+      fetchPromise = this.get('delegate').reload();
+    } else {
+      var query = this.get('delegate.query') || {};
+      query.cursor = cursor;
+      fetchPromise = store.findQuery(type, query);
+    }
+    
+    return fetchPromise.then((results) => {
+      if(this.get('delegate') instanceof DS.ManyArray) {
+        //restore the original link, for future use
+        var relationship = this.get('delegate.relationship');
+        relationship.updateLink(linkBackup);
+      }
       this.set('delegate', results);
-      this.get('content').pushObjects(results.get('content'));
+      this.get('content').pushObjects(results.toArray());
       //perform a recursive fetch in case this fetch didn't load enough results
       return this._fetchPages(numPages);
     });
@@ -236,7 +260,7 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
       if (!this.get('initialized')) {
         this.set('delegate', delegate);
         //make a defensive copy of the passed-in array
-        this.set('content', this.get('delegate.content').slice(0));
+        this.set('content', this.get('delegate').toArray());
         this.set('initialized', true);
       }
     });

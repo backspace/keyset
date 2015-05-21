@@ -2,5 +2,14 @@
 'use strict';
 
 module.exports = {
-  name: 'ember-keyset-pagination'
+  name: 'ember-keyset-pagination',
+  isDevelopingAddon: function() {
+    return true;
+  },
+  
+  included: function(app) {
+    this._super.included(app);
+
+    app.import(app.bowerDirectory + '/uri.js/src/URI.js');
+  }
 };
