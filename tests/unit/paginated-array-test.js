@@ -3,8 +3,8 @@ import {
   module,
   test
 } from 'qunit';
-import startApp from "../../helpers/start-app";
-import config from '../../../config/environment';
+import startApp from "../helpers/start-app";
+import config from '../../config/environment';
 
 var app, 
     store;

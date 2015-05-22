@@ -45,10 +45,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
   init: function() {
     //allow opts to be passed in for ctor convenience
     Ember.merge(this, this.opts);
-    this._freeze('pageSize');
-    this._freeze('behavior');
     this._super();
   },
+  
   
   /**
     The record array that we will paginate
@@ -78,16 +77,6 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     
     return content.slice(start, location + pageSize);
   }),
-  
-  /**
-    utility to make a property read-only
-    
-    @private
-  */
-  _freeze: function(property) {
-    this.set('_' + property, this.get(property));
-    this.set(property, Ember.computed.readOnly('_' + property));
-  },
   
   /**
     Based on the current page, fetch the cursor object for the next page
