@@ -4,6 +4,7 @@ module.exports = function(app) {
   var express = require('express');
   var _ = require('underscore')
   var transactionsRouter = express.Router();
+  var monthsRouter = express.Router();
 
   //transactions are sorted by ID
   var allTransactions = fs.readFileSync(__dirname +"/transactions.csv").toString("utf-8").split("\n").map(function(tx) {
@@ -72,4 +73,23 @@ module.exports = function(app) {
   });
   
   app.use('/api/transactions', transactionsRouter);
+  
+  monthsRouter.get('/', function(req, res) {
+    console.log(req.query)
+    var year = req.query.year,
+        month = req.query.month;
+        
+    res.send({
+      months: [{
+        id: year.toString()+month.toString(),
+        year: year,
+        month: month,
+        links:{
+          transactions: '/api/transactions?year=' + year + '&month=' + month
+        }
+      }]
+    });
+  });
+  
+  app.use('/api/months', monthsRouter);
 };
