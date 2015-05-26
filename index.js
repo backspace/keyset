@@ -3,10 +3,6 @@
 
 module.exports = {
   name: 'ember-keyset-pagination',
-  isDevelopingAddon: function() {
-    return true;
-  },
-  
   included: function(app) {
     this._super.included(app);
 
