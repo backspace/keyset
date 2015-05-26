@@ -175,3 +175,48 @@ test('updating indicator', function(assert) {
     });
   });
 });
+
+test('allow pagination of ManyArray', function(assert) {
+  var fetchRecord = store.find('month', {year: 2013, month: 5}).then(function(records) {
+    return records.get('firstObject');
+  });
+  
+  var paginateTransactions = fetchRecord.then(function(may) {
+    assert.equal(may.get('month'), 5);
+    assert.equal(may.get('year'), 2013);
+    
+    return may.get('transactions').paginate({
+      pageSize: 25
+    });
+  });
+  
+  var secondPage = paginateTransactions.then(function(txs) {
+    assert.equal(txs.get('length'), 25);
+    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 1));
+    assert.equal(txs.get("firstObject.id"), "69273");
+    assert.equal(txs.get("lastObject.id"), "69441");
+    return txs.nextPage();
+  });
+  
+  var originalRecord = secondPage.then(function(txs) {
+    assert.equal(txs.get('length'), 25);
+    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 5));
+    assert.equal(txs.get("firstObject.id"), "69448");
+    assert.equal(txs.get("lastObject.id"), "69616");
+    return fetchRecord;
+  });
+  
+  //make sure we can re-fetch the original records without hitting cache issues!
+  var paginateAgain = originalRecord.then(function(may) {
+    return may.get('transactions').paginate({
+      pageSize: 10
+    });
+  });
+  
+  return paginateAgain.then(function(txs) {
+    assert.equal(txs.get('length'), 10);
+    assert.deepEqual(txs.get("firstObject.date"), new Date(2013, 4, 1));
+    assert.equal(txs.get("firstObject.id"), "69273");
+    assert.equal(txs.get("lastObject.id"), "69336");
+  });
+});

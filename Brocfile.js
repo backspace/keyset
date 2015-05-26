@@ -5,6 +5,8 @@ var EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 var app = new EmberAddon();
 
+app.import('bower_components/uri.js/src/URI.js');
+
 // Use `app.import` to add additional libraries to the generated
 // output files.
 //
