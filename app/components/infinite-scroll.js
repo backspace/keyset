@@ -35,7 +35,7 @@ export default Ember.Component.extend({
       // this allows us to use the same element for content and container.
       contentHeight = content[0].scrollHeight;
     }
-    if ("scroll", contentHeight < (container.height() * 2) + container.scrollTop()) {
+    if (contentHeight < (container.height() * 2) + container.scrollTop()) {
       if (!this.get('contents.isUpdating')) {
         this.get('contents').nextPage();
       }
