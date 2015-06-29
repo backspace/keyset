@@ -2,7 +2,16 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
   /**
-  Selector for the container to watch for scroll events. Defaults to the component's element.
+  Element for the container to watch for scroll events.
+
+  @property
+  @type String
+  */
+  containerElement: null,
+
+  /**
+  Selector for the container to watch for scroll events, if `containerElement`
+  is not specified. Defaults to the component's element.
   
   @property
   @type String
@@ -18,7 +27,7 @@ export default Ember.Component.extend({
   contents:null,
   
   didInsertElement: function() {
-    var container = Ember.$(this.get('containerSelector') || this.$());
+    var container = this.get('containerElement') || Ember.$(this.get('containerSelector') || this.$());
 
     container.on('scroll', () => {
       Ember.run.debounce(this, this.checkScroll, container, 20);
