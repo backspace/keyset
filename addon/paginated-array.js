@@ -99,8 +99,8 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     
     @private
   */
-  _pagesFetched: function(numPages) {
-    var totalFetched = this.get('content.length'),
+  _pagesFetched: function(numPages, additionalRows) {
+    var totalFetched = this.get('content.length') + additionalRows,
         location = this.get('location'),
         pageSize = this.get('pageSize');
     
@@ -113,15 +113,24 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     @param numPages the number of pages from `location` to fetch data for.
            if `numPages` is 0, we will fetch data for the current page only.
            Default: 1
+    @param prevResults the previous page of results, when performing a recursive call
+    @param intermediateResults the intermediate array of results from recursive fetch calls
     @return a promise which will be fulfilled with this when the pages have been fetched
     @private
   */
-  _fetchPages: function(numPages) {
+  _fetchPages: function(numPages, intermediateResults) {
     var store = this.get('delegate.store'),
         type = this.get('delegate.type'),
         cursor = this._nextPageCursor();
-        
-    if (this._pagesFetched(numPages) || !cursor) {
+
+    if (!intermediateResults) {
+      intermediateResults = Ember.A();
+    }
+
+    if (this._pagesFetched(numPages, intermediateResults.length) || !cursor) {
+      //don't update the underlying array until we have all our results.
+      //this prevents uneeded rendering
+      this.get('content').pushObjects(intermediateResults);
       return Ember.RSVP.resolve(this);
     }
 
@@ -150,9 +159,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
         relationship.updateLink(linkBackup);
       }
       this.set('delegate', results);
-      this.get('content').pushObjects(results.toArray());
+      intermediateResults.pushObjects(results.toArray());
       //perform a recursive fetch in case this fetch didn't load enough results
-      return this._fetchPages(numPages);
+      return this._fetchPages(numPages, intermediateResults);
     });
   },
   
