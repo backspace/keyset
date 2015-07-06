@@ -29,15 +29,29 @@ export default Ember.Component.extend({
   didInsertElement: function() {
     var container = this.get('containerElement') || Ember.$(this.get('containerSelector') || this.$());
 
-    container.on('scroll', () => {
+    this.set('scrollListener', () => {
       Ember.run.debounce(this, this.checkScroll, container, 20);
     });
+    
+    container.on('scroll', this.get('scrollListener'))
     
     this.checkScroll(container);
   },
   
+  willDestroyElement: function() {
+    var container = this.get('containerElement') || Ember.$(this.get('containerSelector') || this.$());
+    container.off('scroll', this.get('scrollListener'))
+
+  },
+  
   checkScroll: function(container) {
+    if (this.get('isDestroyed') || this.get('isDestroying') || !this.get('contents').nextPage) {
+      return;
+    }
     var content = this.$();
+    if (!content) {
+      return;
+    }
     var contentHeight = content.height();
     if (content[0].scrollHeight) {
       //  if the content element is scrollable, use the scrollHeight to calculate the content height
