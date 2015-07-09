@@ -8,7 +8,7 @@ export default {
     var arrayExtensions = {
       paginate: function(opts) {
           return PaginatedArray.create({delegate: this, opts: opts})
-                    .loadFirstPage();
+                    .firstPage();
       }
     };
 
