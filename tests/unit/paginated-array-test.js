@@ -107,6 +107,31 @@ test('loads full data of pages larger than remote page size', function(assert) {
   });             
 });
 
+test('finds a page containing an item', function(assert) {
+  var transactions = store.find('transaction')
+                        .paginate({pageSize: 67})
+                        .then(txs => txs.findPage(tx => tx.id === "66683"));
+
+  return transactions.then(function(txs) {
+    assert.equal(txs.get('length'), 67);
+    assert.equal(txs.get("firstObject.id"), "66655");
+    assert.equal(txs.get("lastObject.id"), "67117");
+    assert.ok(txs.find(tx => tx.id === '66683'));
+  });
+});
+
+test('goes back to the first page if the page cant be found', function(assert) {
+  var transactions = store.find('transaction', {year: 2013, month: 5})
+                        .paginate({pageSize: 67})
+                        .then(txs => txs.findPage(tx => tx.id === "FOO"));
+
+  return transactions.then(function(txs) {
+    assert.equal(txs.get('length'), 67);
+    assert.equal(txs.get("firstObject.id"), "69273");
+    assert.equal(txs.get("lastObject.id"), "69735");
+  });
+});
+
 test('paginates data queries', function(assert) {
   var transactions = store.find('transaction', {year: 2013, month: 5})
                         .paginate({pageSize: 15});

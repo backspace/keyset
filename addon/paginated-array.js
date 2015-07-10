@@ -171,7 +171,8 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     
     @return a promise which will be fulfilled with this when all data for the current page is fetched
   */
-  loadFirstPage: function() {
+  firstPage: function() {
+    this.set('location', 0);
     return this.nextPage(0);
   },
   
@@ -293,5 +294,30 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
     });
     
     return updateLocation;
+  },
+
+  /**
+  Find and move to the page containing the item matching the given predicate
+
+  TODO: This will probably cause the list to be re-rendered for each page it looks at.
+        I looked into modifying `nextPage` to accept a predicate, but the logic got very
+        complicated and buggy. Best to call this function before rendering to the template.
+  TODO: I think this runs the predicate for each item when the mode is 'append'.
+        This could cause performance issues for larger data sets.
+
+  @param predicate: a function which will be called with each item. return `true` if the item matches.
+  @param currentPage: mostly for recursive calls, but could be passed in to start at a page other than the first page.
+  **/
+  findPage(predicate, currentPage = this.firstPage()) {
+    return currentPage.then((items) => {
+      if (items.find(predicate)) {
+        return items;
+      } else if(!this.get('hasNextPage')) {
+        //matching item not found, return to first page.
+        return this.firstPage();
+      } else {
+        return this.findPage(predicate, this.nextPage());
+      }
+    });
   }
 });
