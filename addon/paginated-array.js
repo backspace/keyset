@@ -162,6 +162,9 @@ export default Ember.ArrayProxy.extend(Ember.MutableArray, {
       intermediateResults.pushObjects(results.toArray());
       //perform a recursive fetch in case this fetch didn't load enough results
       return this._fetchPages(numPages, intermediateResults);
+    }, (error) => {
+      this.get('content').pushObjects(intermediateResults);
+      return Ember.RSVP.resolve(this);
     });
   },
   
